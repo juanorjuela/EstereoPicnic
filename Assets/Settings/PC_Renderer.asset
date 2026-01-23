@@ -72,9 +72,9 @@ MonoBehaviour:
   settings:
     edgeColor: {r: 0, g: 0, b: 0, a: 1}
     edgeIntensity: 1
-    edgeThickness: 1
-    depthThreshold: 0.554
-    normalThreshold: 0.585
+    edgeThickness: 1.12
+    depthThreshold: 0.549
+    normalThreshold: 0.473
     useDepth: 1
     useNormal: 1
     renderPassEvent: 300
@@ -100,7 +100,7 @@ MonoBehaviour:
     Source: 1
     NormalSamples: 1
     Intensity: 0.4
-    DirectLightingStrength: 0.25
+    DirectLightingStrength: 0.255
     Radius: 0.3
     Samples: 1
     BlurQuality: 0
