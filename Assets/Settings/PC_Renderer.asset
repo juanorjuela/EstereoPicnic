@@ -71,7 +71,7 @@ MonoBehaviour:
   m_Active: 1
   settings:
     edgeColor: {r: 0, g: 0, b: 0, a: 1}
-    edgeIntensity: 1
+    edgeIntensity: 0.745
     edgeThickness: 1.12
     depthThreshold: 0.549
     normalThreshold: 0.473
@@ -99,10 +99,10 @@ MonoBehaviour:
     AfterOpaque: 0
     Source: 1
     NormalSamples: 1
-    Intensity: 0.4
-    DirectLightingStrength: 0.255
-    Radius: 0.3
+    Intensity: 1
+    DirectLightingStrength: 0.597
+    Radius: 0
     Samples: 1
     BlurQuality: 0
-    Falloff: 100
+    Falloff: 246.3
     SampleCount: -1
