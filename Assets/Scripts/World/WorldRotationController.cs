@@ -38,6 +38,14 @@ public class WorldRotationController : MonoBehaviour
     
     [Tooltip("A/D controls yaw (Y-axis rotation)")]
     [SerializeField] private bool aDControlsYaw = true;
+
+    [Header("Input Mode")]
+    [Tooltip("When enabled, use mouse delta instead of keyboard input for world rotation.")]
+    [SerializeField] private bool useMouseInput = false;
+    [Tooltip("Mouse sensitivity for pitch (vertical) rotation input.")]
+    [SerializeField] private float mousePitchSensitivity = 0.1f;
+    [Tooltip("Mouse sensitivity for yaw (horizontal) rotation input.")]
+    [SerializeField] private float mouseYawSensitivity = 0.1f;
     
     // Input System
     private InputSystem_Actions inputActions;
@@ -91,15 +99,39 @@ public class WorldRotationController : MonoBehaviour
         // Get input values
         float pitchInput = 0f;
         float yawInput = 0f;
-        
-        if (wSControlsPitch)
+
+        if (useMouseInput && Mouse.current != null)
         {
-            pitchInput = -rotationInput.y; // W/S (forward/backward) - inverted
+            Vector2 mouseDelta = Mouse.current.delta.ReadValue();
+            float mouseX = mouseDelta.x * mouseYawSensitivity;
+            float mouseY = mouseDelta.y * mousePitchSensitivity;
+            Vector2 scaled = new Vector2(mouseX, mouseY);
+
+            // Apply deadzone similar to keyboard path
+            if (scaled.magnitude >= 0.01f)
+            {
+                if (wSControlsPitch)
+                {
+                    pitchInput = -scaled.y; // keep same sign convention
+                }
+
+                if (aDControlsYaw)
+                {
+                    yawInput = -scaled.x;
+                }
+            }
         }
-        
-        if (aDControlsYaw)
+        else
         {
-            yawInput = -rotationInput.x; // A/D (left/right) - inverted
+            if (wSControlsPitch)
+            {
+                pitchInput = -rotationInput.y; // W/S (forward/backward) - inverted
+            }
+
+            if (aDControlsYaw)
+            {
+                yawInput = -rotationInput.x; // A/D (left/right) - inverted
+            }
         }
         
         // Calculate target velocities based on input
