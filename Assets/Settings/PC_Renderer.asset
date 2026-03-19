@@ -71,10 +71,10 @@ MonoBehaviour:
   m_Active: 1
   settings:
     edgeColor: {r: 0, g: 0, b: 0, a: 1}
-    edgeIntensity: 0.745
-    edgeThickness: 1.12
-    depthThreshold: 0.549
-    normalThreshold: 0.473
+    edgeIntensity: 1
+    edgeThickness: 1
+    depthThreshold: 1
+    normalThreshold: 1
     useDepth: 1
     useNormal: 1
     renderPassEvent: 300
@@ -95,14 +95,14 @@ MonoBehaviour:
   m_Active: 1
   m_Settings:
     AOMethod: 0
-    Downsample: 0
-    AfterOpaque: 0
-    Source: 1
+    Downsample: 1
+    AfterOpaque: 1
+    Source: 0
     NormalSamples: 1
-    Intensity: 1
-    DirectLightingStrength: 0.597
+    Intensity: 0
+    DirectLightingStrength: 0
     Radius: 0
-    Samples: 1
+    Samples: 0
     BlurQuality: 0
-    Falloff: 246.3
+    Falloff: 0
     SampleCount: -1

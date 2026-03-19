@@ -2,8 +2,8 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 
 /// <summary>
-/// Simple third-person player controller: WASD (character-relative, W = forward), walk + Shift to run.
-/// No jump. Uses CharacterController and drives Animator (Speed, IsGrounded, MovementState).
+/// Simple third-person player controller: WASD (camera-relative), Shift to run, Space to jump.
+/// Uses CharacterController and drives Animator (Speed, IsGrounded, MovementState, MovementX/Z).
 /// </summary>
 [RequireComponent(typeof(CharacterController))]
 public class PLAYER_CONTROLLER : MonoBehaviour
@@ -15,6 +15,12 @@ public class PLAYER_CONTROLLER : MonoBehaviour
 
     [Header("Gravity")]
     [SerializeField] private float gravityMultiplier = 2f;
+
+    [Header("Jump")]
+    [Tooltip("Allow jump when grounded (Spacebar).")]
+    [SerializeField] private bool enableJump = true;
+    [Tooltip("Jump height in meters. Initial upward velocity is derived from this and gravity.")]
+    [SerializeField] private float jumpHeight = 1.5f;
 
     [Header("Animation")]
     [Tooltip("Optional. Auto-finds on this object or in children if not set.")]
@@ -48,13 +54,16 @@ public class PLAYER_CONTROLLER : MonoBehaviour
     private Vector3 _moveDirection;
     private float _verticalVelocity;
     private float _currentSpeed;
+    private bool _jumpRequested;
 
     public enum MovementState
     {
         Idle = 0,
         Walking = 1,
         Running = 2,
-        Sprinting = 3
+        Sprinting = 3,
+        Jumping = 4,
+        Falling = 5
     }
 
     private MovementState _currentMovementState;
@@ -116,6 +125,7 @@ public class PLAYER_CONTROLLER : MonoBehaviour
             _input.Player.Move.canceled += OnMove;
             _input.Player.Sprint.performed += OnSprint;
             _input.Player.Sprint.canceled += OnSprint;
+            _input.Player.Jump.performed += OnJump;
         }
     }
 
@@ -127,6 +137,7 @@ public class PLAYER_CONTROLLER : MonoBehaviour
             _input.Player.Move.canceled -= OnMove;
             _input.Player.Sprint.performed -= OnSprint;
             _input.Player.Sprint.canceled -= OnSprint;
+            _input.Player.Jump.performed -= OnJump;
             _input.Disable();
         }
     }
@@ -141,6 +152,12 @@ public class PLAYER_CONTROLLER : MonoBehaviour
     private void OnSprint(InputAction.CallbackContext ctx)
     {
         _sprintHeld = ctx.ReadValueAsButton();
+    }
+
+    private void OnJump(InputAction.CallbackContext ctx)
+    {
+        if (ctx.performed)
+            _jumpRequested = true;
     }
 
     private Vector2 GetMouseInputVector()
@@ -167,6 +184,12 @@ public class PLAYER_CONTROLLER : MonoBehaviour
         bool isGrounded = _controller.isGrounded;
         if (isGrounded && _verticalVelocity < 0f)
             _verticalVelocity = -2f;
+
+        if (enableJump && isGrounded && _jumpRequested)
+        {
+            _verticalVelocity = Mathf.Sqrt(2f * jumpHeight * Mathf.Abs(Physics.gravity.y) * gravityMultiplier);
+            _jumpRequested = false;
+        }
 
         // Decide which input source to use this frame
         _moveInput = useMouseInput ? GetMouseInputVector() : _moveInput;
@@ -206,8 +229,10 @@ public class PLAYER_CONTROLLER : MonoBehaviour
             transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, rotationSmoothSpeed * Time.deltaTime);
         }
 
-        // Update movement state - use same threshold as speed check
-        if (inputMagnitude < 0.001f)
+        // Update movement state - use same threshold as speed check; include air states for animator
+        if (!isGrounded)
+            _currentMovementState = _verticalVelocity > 0f ? MovementState.Jumping : MovementState.Falling;
+        else if (inputMagnitude < 0.001f)
             _currentMovementState = MovementState.Idle;
         else if (_sprintHeld)
             _currentMovementState = MovementState.Sprinting;
